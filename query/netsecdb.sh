@@ -23,7 +23,7 @@ case $1 in
        echo 'starting job'
       ;;
    *) echo 'Does not look like IP'
-      echo "usage: banfail.sh ssh|pop3|plesk|smtp|ftp|dns|recidive|repeat IPv4/IPv6|CIDR"
+      echo "usage: ./netsecdb.sh <IPv4/IPv6-Adress> for example 188.40.253.3 or 2a01:4f8:10a:1e58::4 / 2a03:2260:123:300:a62b:b0ff:feca:86da"
       exit
      ;;
 esac
