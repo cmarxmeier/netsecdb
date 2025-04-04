@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Categories=System;Network;Database;pyQT;
+Comment=Query NetsecDB database with pyQT Frontend
+Exec=/home/alladin/netsecdb/netsecdb.py
+Name=netsecdb query
+NoDisplay=false
+Terminal=false
+Type=Application
+Icon=netsecdb
