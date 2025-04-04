@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# network security query script in python qt running on linux 64bit
+# network security query script in python qt running on linux 64bit / macos
 # (c) 2025 by alladin@routeme.de
 
 import sys
