@@ -1,2 +1,2 @@
 cd C:\Users\alladin\netsecdb
-python netsecdb.py
+python netsecdb_win.py
