@@ -119,8 +119,12 @@ class MyWindow(QtWidgets.QWidget):
               QtWidgets.QMessageBox.warning(self, "Error", "Database error")
               return
 
+	  # get netcidr of first record
+        if query2.first():  # move cursor to first row
+            netcidr_str = query2.value(1)  # get value from first column (netcidr)
+	    
         elapsed_time = timer.elapsed() / 1000  # Calculate the elapsed time in seconds
-        self.time_label.setText("Searching for "+ ip_str + " with record id: "+ str(id_str) +" took {:.3f} s ".format(elapsed_time))  # Display the elapsed time on the QLabel widget
+        self.time_label.setText("Searching for "+ ip_str + " with record id: "+ str(id_str) +" cidr: "+ str(netcidr_str) +" took {:.3f} s ".format(elapsed_time))  # Display the elapsed time on the QLabel widget
 
 
         self.model1 = QtSql.QSqlQueryModel()
