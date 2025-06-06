@@ -1,9 +1,23 @@
 #!C:\Users\alladin\netsecdb\venv\Scripts\python
+#
+# (c) 2025 by alladin@routeme.de
+# netsecdb_cidrreport.py
+# queries local netsecdb and reports netranges and abusive V4/6 IPs
+# export report to png file
+
+
 import sys
 import re
 import ipaddress
-from PyQt6 import QtWidgets, QtGui, QtSql, QtCore
+from PyQt6 import QtWidgets, QtGui, QtSql, QtCore, uic
 from ipaddress import ip_address
+
+# screengrab
+from PIL import ImageGrab
+import os
+
+
+lastip = ''
 
 class MyWindow(QtWidgets.QWidget):
     def __init__(self):
@@ -46,6 +60,21 @@ class MyWindow(QtWidgets.QWidget):
            "}" 
 	)  # Set background color to green
 
+        # Export PDF Button
+        png_button = QtWidgets.QPushButton('export PNG')
+        png_button.clicked.connect(self.exportpng)
+        png_button.setStyleSheet(
+           "QPushButton::hover{"
+           "background-color: #5EABFF;"
+           "border: none;"
+           "},"       
+           "Qpushbutton {"
+           "background-color: blue;"
+           "border: none;"
+           "}" 
+	)  # Set background color to blue
+
+
 
         # Exit button
         exit_button = QtWidgets.QPushButton('Exit')
@@ -65,8 +94,8 @@ class MyWindow(QtWidgets.QWidget):
 
         # Database connection setup
         self.db = QtSql.QSqlDatabase.addDatabase('QPSQL')
-        #self.db.setHostName('localhost')  # replace with your host name
-        self.db.setHostName('192.168.178.123')  # replace with your host name
+        self.db.setHostName('localhost')  # replace with your host name
+        #self.db.setHostName('192.168.80.124')  # replace with your host name
         self.db.setDatabaseName('whois')  # replace with your database name
         self.db.setPort(5432)             # Default PostgreSQL port
         self.db.setUserName('user')  # replace with your username
@@ -84,15 +113,45 @@ class MyWindow(QtWidgets.QWidget):
         layout.addWidget(label)
         layout.addWidget(self.ip_input)
         layout.addWidget(submit_button)
+        layout.addWidget(png_button)
         layout.addWidget(exit_button)
         layout.addWidget(self.time_label)
         layout.addWidget(self.meta_label)
         self.setLayout(layout)
 
+    
+        
+    def exportpng(self):
+      
+      
+      # add export routine for pdf screendump
+      print ("pdf export triggered")
+      # Get the geometry of the application window to define the area for screenshot
+      geometry = self.geometry()
+      x = geometry.x() + 10  # Adjust to avoid window border issues (if any)
+      y = geometry.y() + 20  # Adjust to avoid title bar and borders (if any)
+      width = geometry.width()
+      height = geometry.height()
 
+      # Capture the screen area that corresponds to the application window
+      screenshot = ImageGrab.grab(bbox=(x, y, x+width, y+height))
+
+      lastipfilename= lastip.replace(":","_")
+      lastipfilename2 = lastipfilename.replace(".","_")
+
+      # Define the output file path
+      pngfilename = 'netsecdb_cidrreport_' + lastipfilename2 + '.png'
+      output_path = os.path.join(os.getcwd(), pngfilename)
+
+      # Save the screenshot as a PNG file
+      screenshot.save(output_path, 'PNG')
+      print(f"Screenshot saved to {output_path}")
 
     def search_database(self):
         ip_str = self.ip_input.text().strip() 
+        global lastcidr
+        global lastip
+        lastip = ip_str
         try:
             ip_address(ip_str)  # validate IP address
         except ValueError:
@@ -251,7 +310,7 @@ class MyWindow(QtWidgets.QWidget):
              # loop table-values and concat to output-string
              while (query3.next()):
                    valuecount = valuecount + 1
-                   if valuecount == 20:
+                   if valuecount == 8:
                        meta_str = meta_str + "\n"
                        valuecount = 0
                    string4 = query3.value(0);
@@ -268,7 +327,7 @@ class MyWindow(QtWidgets.QWidget):
              # loop table-values and concat to output-string
              while (query4.next()):
                    valuecount = valuecount + 1
-                   if valuecount == 20:
+                   if valuecount == 8:
                        meta_str = meta_str + "\n"
                        valuecount = 0
                    string4 = query4.value(0);
@@ -285,7 +344,7 @@ class MyWindow(QtWidgets.QWidget):
              # loop table-values and concat to output-string
              while (query5.next()):
                    valuecount = valuecount + 1
-                   if valuecount == 20:
+                   if valuecount == 8:
                        meta_str = meta_str + "\n"
                        valuecount = 0
                    string4 = query5.value(0);
@@ -303,7 +362,7 @@ class MyWindow(QtWidgets.QWidget):
              # loop table-values and concat to output-string
              while (query6.next()):
                    valuecount = valuecount + 1
-                   if valuecount == 20:
+                   if valuecount == 8:
                        meta_str = meta_str + "\n"
                        valuecount = 0
                    string4 = query6.value(0);
@@ -313,6 +372,8 @@ class MyWindow(QtWidgets.QWidget):
         elapsed_time = timer.elapsed() / 1000  # Calculate the elapsed time in seconds
         self.time_label.setText("Searching for IPv"+str(ip_version)+" "+ ip_str  + " with record id: "+ str(id_str) +" cidr: "+ str(netcidr_str)+" took {:.3f} s ".format(elapsed_time))  # Display the elapsed time on the QLabel widget
 
+        lastcidr=str(netcidr_str)
+ 
         #self.time_label.setFont(QtGui.QFont("Times",weight=QtGui.QFont.Bold))
         self.meta_label.setText(meta_str)
 
@@ -332,7 +393,7 @@ class MyWindow(QtWidgets.QWidget):
         layout = self.layout()
         # scale table to content
         view1.resizeColumnsToContents()
-        if not layout.itemAt(6):  # if no table is already displayed, add one
+        if not layout.itemAt(7):  # if no table is already displayed, add one
              layout.addWidget(view1)
         else:
              layout.replaceWidget(layout.itemAt(6).widget(), view1)  # otherwise, replace the existing one with the new one
@@ -341,12 +402,13 @@ class MyWindow(QtWidgets.QWidget):
         view2.setModel(self.model2)
         # scale table to content
         view2.resizeColumnsToContents()
-        if not layout.itemAt(7):  # if no table is already displayed, add one
+        if not layout.itemAt(8):  # if no table is already displayed, add one
              layout.addWidget(view2)
         else:
              layout.replaceWidget(layout.itemAt(7).widget(), view2)  # otherwise, replace the existing one with the new one
 
-
+       # print pdf from window
+       
 
 def main():
     app = QtWidgets.QApplication(sys.argv)
