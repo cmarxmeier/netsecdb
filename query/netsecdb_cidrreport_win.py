@@ -102,8 +102,8 @@ class MyWindow(QtWidgets.QWidget):
         self.db.setPassword('password')  # replace with your password
 
         if not self.db.open():
-                QMessageBox.critical(self, 'Database Error',
-                                  'Failed to open database connection.')
+                QtWidgets.QMessageBox.critical(self, "DB-Error", "No database connect.")
+                sys.exit()
                 return
 
         
