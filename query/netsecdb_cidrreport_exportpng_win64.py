@@ -140,6 +140,7 @@ class MyWindow(QtWidgets.QWidget):
       # Save the screenshot as a PNG file
       screenshot.save(output_path, 'PNG')
       print(f"Screenshot saved to {output_path}")
+	  QtWidgets.QMessageBox.critical(self, "PNG export", "successfully exported to png.")
 
     def search_database(self):
         ip_str = self.ip_input.text().strip() 
