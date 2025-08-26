@@ -170,7 +170,7 @@ class MyWindow(QtWidgets.QWidget):
       os.remove(temp_image_path)
 
       print(f"Screenshot saved to {output_pdf_path}")
-      
+      QtWidgets.QMessageBox.critical(self, "PDF export", "successfully exported to pdf.")
 
     def search_database(self):
         ip_str = self.ip_input.text().strip()
